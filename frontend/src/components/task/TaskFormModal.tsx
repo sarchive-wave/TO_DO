@@ -1,0 +1,138 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, TextField, Select, MenuItem, FormControl,
+  InputLabel, Box, IconButton, FormHelperText,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs, { Dayjs } from 'dayjs';
+import type { Category } from '../../types/category';
+import type { Task, TaskCreateRequest } from '../../types/task';
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (req: TaskCreateRequest) => Promise<void>;
+  categories: Category[];
+  initialTask?: Task | null;
+}
+
+const TaskFormModal: React.FC<Props> = ({ open, onClose, onSubmit, categories, initialTask }) => {
+  const [date, setDate] = useState<Dayjs | null>(dayjs());
+  const [categoryId, setCategoryId] = useState<number | ''>('');
+  const [subCategory, setSubCategory] = useState('');
+  const [title, setTitle] = useState('');
+  const [errors, setErrors] = useState<{ date?: string; category?: string; title?: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    if (initialTask) {
+      setDate(dayjs(initialTask.task_date));
+      setCategoryId(initialTask.category_id);
+      setSubCategory(initialTask.sub_category ?? '');
+      setTitle(initialTask.title);
+    } else {
+      setDate(dayjs());
+      setCategoryId(categories[0]?.id ?? '');
+      setSubCategory('');
+      setTitle('');
+    }
+    setErrors({});
+  }, [open, initialTask, categories]);
+
+  const validate = () => {
+    const next: typeof errors = {};
+    if (!date || !date.isValid()) next.date = '날짜를 선택해주세요.';
+    if (!categoryId) next.category = '업무구분을 선택해주세요.';
+    if (!title.trim()) next.title = '할 일을 입력해주세요.';
+    else if (title.length > 200) next.title = '200자 이내로 입력해주세요.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        task_date: date!.format('YYYY-MM-DD'),
+        category_id: categoryId as number,
+        sub_category: subCategory.trim() || undefined,
+        title: title.trim(),
+      });
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+        {initialTask ? '업무 수정' : '업무 추가'}
+        <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+          <DatePicker
+            label="날짜 *"
+            value={date}
+            onChange={setDate}
+            format="YYYY-MM-DD"
+            slotProps={{
+              textField: { error: !!errors.date, helperText: errors.date, fullWidth: true, size: 'small' },
+            }}
+          />
+          <FormControl fullWidth size="small" error={!!errors.category}>
+            <InputLabel>업무구분 *</InputLabel>
+            <Select
+              value={categoryId}
+              label="업무구분 *"
+              onChange={(e) => setCategoryId(e.target.value as number)}
+            >
+              {categories.map((cat) => (
+                <MenuItem key={cat.id} value={cat.id}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: cat.color, flexShrink: 0 }} />
+                    {cat.name}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.category && <FormHelperText>{errors.category}</FormHelperText>}
+          </FormControl>
+          <TextField
+            label="세분류"
+            value={subCategory}
+            onChange={(e) => setSubCategory(e.target.value)}
+            fullWidth
+            size="small"
+            placeholder="예: 1팀, 2분기, 외부 등 (선택)"
+            inputProps={{ maxLength: 100 }}
+          />
+          <TextField
+            label="할 일 *"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            fullWidth
+            size="small"
+            error={!!errors.title}
+            helperText={errors.title}
+            inputProps={{ maxLength: 200 }}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+          />
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2.5 }}>
+        <Button onClick={onClose} color="inherit">취소</Button>
+        <Button onClick={handleSubmit} variant="contained" disabled={submitting}>
+          {initialTask ? '수정' : '저장'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default TaskFormModal;
