@@ -10,6 +10,9 @@ backend/.env
 frontend/node_modules/
 frontend/dist/
 
+# Logs
+logs/
+
 # macOS
 .DS_Store
 
