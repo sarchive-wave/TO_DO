@@ -4,7 +4,7 @@ import type { Task, TaskCreateRequest, TaskUpdateRequest } from '../types/task';
 
 const sortTasks = (tasks: Task[]): Task[] =>
   [...tasks].sort((a, b) =>
-    a.task_date < b.task_date ? -1 : a.task_date > b.task_date ? 1 : a.id - b.id
+    a.task_date > b.task_date ? -1 : a.task_date < b.task_date ? 1 : a.id - b.id
   );
 
 export const useTask = () => {
@@ -51,5 +51,16 @@ export const useTask = () => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  return { tasks, loading, fetchTasks, createTask, updateTask, toggleComplete, deleteTask };
+  const reorderTasks = async (ids: number[]) => {
+    const idSet = new Set(ids);
+    setTasks((prev) => {
+      const map = new Map(prev.map((t) => [t.id, t]));
+      const reordered = ids.map((id) => map.get(id)!).filter(Boolean);
+      let ri = 0;
+      return prev.map((t) => (idSet.has(t.id) ? reordered[ri++] : t));
+    });
+    await taskApi.reorder(ids);
+  };
+
+  return { tasks, loading, fetchTasks, createTask, updateTask, toggleComplete, deleteTask, reorderTasks };
 };

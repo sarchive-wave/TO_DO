@@ -27,6 +27,16 @@ def _run_migrations():
                 "ALTER TABLE task ADD COLUMN sub_category VARCHAR(100)"
             ))
             conn.commit()
+        if "sort_order" not in existing:
+            conn.execute(__import__("sqlalchemy").text(
+                "ALTER TABLE task ADD COLUMN sort_order INTEGER"
+            ))
+            conn.commit()
+        if "memo" not in existing:
+            conn.execute(__import__("sqlalchemy").text(
+                "ALTER TABLE task ADD COLUMN memo VARCHAR(1000)"
+            ))
+            conn.commit()
 
 
 _run_migrations()

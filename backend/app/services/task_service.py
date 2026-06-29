@@ -30,7 +30,7 @@ def get_tasks_by_month(db: Session, year: int, month: int) -> list[TaskResponse]
         db.query(Task)
         .options(joinedload(Task.category))
         .filter(Task.task_date >= start, Task.task_date <= end)
-        .order_by(Task.task_date.asc(), Task.id.asc())
+        .order_by(Task.task_date.desc(), Task.sort_order.asc().nulls_last(), Task.id.asc())
         .all()
     )
     return [_to_response(t) for t in tasks]
@@ -43,6 +43,7 @@ def create_task(db: Session, request: TaskCreateRequest) -> TaskResponse:
         category_id=category.id,
         sub_category=request.sub_category,
         title=request.title,
+        memo=request.memo,
         completed=False,
     )
     db.add(task)
@@ -61,6 +62,7 @@ def update_task(db: Session, task_id: int, request: TaskUpdateRequest) -> TaskRe
     task.category_id = category.id
     task.sub_category = request.sub_category
     task.title = request.title
+    task.memo = request.memo
     db.commit()
     db.refresh(task)
     task.category
@@ -74,6 +76,12 @@ def toggle_complete(db: Session, task_id: int) -> TaskResponse:
     db.refresh(task)
     task.category
     return _to_response(task)
+
+
+def reorder_tasks(db: Session, ids: list) -> None:
+    for order, task_id in enumerate(ids, start=1):
+        db.query(Task).filter(Task.id == task_id).update({"sort_order": order})
+    db.commit()
 
 
 def delete_task(db: Session, task_id: int) -> None:
@@ -91,6 +99,7 @@ def _to_response(task: Task) -> TaskResponse:
         category_color=task.category.color,
         sub_category=task.sub_category,
         title=task.title,
+        memo=task.memo,
         completed=task.completed,
         created_at=task.created_at,
         updated_at=task.updated_at,

@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CategoryIcon from '@mui/icons-material/Category';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const DRAWER_WIDTH = 220;
 
@@ -15,6 +16,7 @@ const AppLayout: React.FC = () => {
 
   const navItems = [
     { label: '업무 현황', path: '/', icon: <AssignmentIcon fontSize="small" /> },
+    { label: '대시보드', path: '/dashboard', icon: <DashboardIcon fontSize="small" /> },
     { label: '업무구분 관리', path: '/settings/categories', icon: <CategoryIcon fontSize="small" /> },
   ];
 

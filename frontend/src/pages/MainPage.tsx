@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Typography, Button, LinearProgress, IconButton,
+  Box, Typography, Button, LinearProgress,
   TextField, Select, MenuItem, FormControl, InputLabel,
   Checkbox, FormControlLabel, Chip, Stack, Paper,
 } from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import dayjs from 'dayjs';
@@ -13,6 +11,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTask } from '../hooks/useTask';
 import { useCategory } from '../hooks/useCategory';
 import { useFilter } from '../hooks/useFilter';
+import { taskApi } from '../api/taskApi';
 import { calcStats } from '../utils/statsUtils';
 import TaskTable from '../components/task/TaskTable';
 import TaskFormModal from '../components/task/TaskFormModal';
@@ -24,10 +23,16 @@ const MainPage: React.FC = () => {
   const year = parseInt(searchParams.get('year') ?? String(now.year()));
   const month = parseInt(searchParams.get('month') ?? String(now.month() + 1));
 
-  const { tasks, loading, fetchTasks, createTask, updateTask, toggleComplete, deleteTask } = useTask();
+  const { tasks, loading, fetchTasks, createTask, updateTask, toggleComplete, deleteTask, reorderTasks } = useTask();
   const { categories } = useCategory();
   const { filter, setFilter, filteredTasks } = useFilter(tasks);
   const stats = calcStats(filteredTasks);
+
+  const [subCategoryOptions, setSubCategoryOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    taskApi.getSubCategories().then(setSubCategoryOptions).catch(() => {});
+  }, []);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -36,12 +41,8 @@ const MainPage: React.FC = () => {
     fetchTasks(year, month);
   }, [year, month, fetchTasks]);
 
-  const navigateMonth = (delta: number) => {
-    let y = year, m = month + delta;
-    if (m < 1) { m = 12; y -= 1; }
-    if (m > 12) { m = 1; y += 1; }
-    setSearchParams({ year: String(y), month: String(m) });
-  };
+  const yearOptions = Array.from({ length: 10 }, (_, i) => now.year() - 4 + i);
+  const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const openAdd = () => { setEditingTask(null); setModalOpen(true); };
   const openEdit = (task: Task) => { setEditingTask(task); setModalOpen(true); };
@@ -50,6 +51,7 @@ const MainPage: React.FC = () => {
   const handleSubmit = async (req: { task_date: string; category_id: number; title: string }) => {
     if (editingTask) await updateTask(editingTask.id, req);
     else await createTask(req);
+    taskApi.getSubCategories().then(setSubCategoryOptions).catch(() => {});
   };
 
   return (
@@ -57,16 +59,27 @@ const MainPage: React.FC = () => {
       {/* 헤더: 년월 이동 + 통계 */}
       <Paper elevation={0} sx={{ p: 2.5, mb: 2, border: '1px solid #E2E8F0', borderRadius: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <IconButton size="small" onClick={() => navigateMonth(-1)}>
-              <ChevronLeftIcon />
-            </IconButton>
-            <Typography variant="h5" fontWeight={700} sx={{ minWidth: 150, textAlign: 'center' }}>
-              {year}년 {month}월
-            </Typography>
-            <IconButton size="small" onClick={() => navigateMonth(1)}>
-              <ChevronRightIcon />
-            </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Select
+              value={year}
+              size="small"
+              onChange={(e) => setSearchParams({ year: String(e.target.value), month: String(month) })}
+              sx={{ fontWeight: 700, fontSize: 18, '.MuiSelect-select': { py: 0.8 } }}
+            >
+              {yearOptions.map((y) => (
+                <MenuItem key={y} value={y}>{y}년</MenuItem>
+              ))}
+            </Select>
+            <Select
+              value={month}
+              size="small"
+              onChange={(e) => setSearchParams({ year: String(year), month: String(e.target.value) })}
+              sx={{ fontWeight: 700, fontSize: 18, '.MuiSelect-select': { py: 0.8 } }}
+            >
+              {monthOptions.map((m) => (
+                <MenuItem key={m} value={m}>{m}월</MenuItem>
+              ))}
+            </Select>
           </Box>
           <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>
             업무 추가
@@ -162,6 +175,7 @@ const MainPage: React.FC = () => {
           onToggleComplete={toggleComplete}
           onEdit={openEdit}
           onDelete={deleteTask}
+          onReorder={reorderTasks}
         />
       )}
 
@@ -170,6 +184,8 @@ const MainPage: React.FC = () => {
         onClose={closeModal}
         onSubmit={handleSubmit}
         categories={categories}
+        subCategoryOptions={subCategoryOptions}
+        onSubCategoryDeleted={(name) => setSubCategoryOptions((prev) => prev.filter((s) => s !== name))}
         initialTask={editingTask}
       />
     </Box>

@@ -7,6 +7,8 @@ export interface Task {
   sub_category: string | null;
   title: string;
   completed: boolean;
+  memo: string | null;
+  sort_order: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -16,6 +18,7 @@ export interface TaskCreateRequest {
   category_id: number;
   sub_category?: string;
   title: string;
+  memo?: string;
 }
 
 export interface TaskUpdateRequest {
@@ -23,4 +26,5 @@ export interface TaskUpdateRequest {
   category_id: number;
   sub_category?: string;
   title: string;
+  memo?: string;
 }

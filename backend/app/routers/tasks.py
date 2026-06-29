@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.common import ApiResponse
-from app.schemas.task import TaskCreateRequest, TaskUpdateRequest, TaskResponse
+from app.schemas.task import TaskCreateRequest, TaskUpdateRequest, TaskResponse, TaskReorderRequest
 from app.services import task_service
 from app.services.task_service import TaskNotFoundError, CategoryNotFoundError
 
@@ -23,6 +23,28 @@ def create_task(request: TaskCreateRequest, db: Session = Depends(get_db)):
         return ApiResponse.ok(task)
     except CategoryNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.get("/sub-categories", response_model=ApiResponse[list[str]])
+def get_sub_categories(db: Session = Depends(get_db)):
+    from sqlalchemy import distinct
+    from app.models.task import Task as TaskModel
+    results = db.query(distinct(TaskModel.sub_category)).filter(TaskModel.sub_category.isnot(None)).all()
+    return ApiResponse.ok(sorted([r[0] for r in results if r[0]]))
+
+
+@router.delete("/sub-categories/{name}", response_model=ApiResponse[None])
+def delete_sub_category(name: str, db: Session = Depends(get_db)):
+    from app.models.task import Task as TaskModel
+    db.query(TaskModel).filter(TaskModel.sub_category == name).update({"sub_category": None})
+    db.commit()
+    return ApiResponse.ok(None)
+
+
+@router.put("/reorder", response_model=ApiResponse[None])
+def reorder_tasks(request: TaskReorderRequest, db: Session = Depends(get_db)):
+    task_service.reorder_tasks(db, request.ids)
+    return ApiResponse.ok(None)
 
 
 @router.put("/{task_id}", response_model=ApiResponse[TaskResponse])

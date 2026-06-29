@@ -7,6 +7,7 @@ import 'dayjs/locale/ko';
 import AppLayout from './components/common/AppLayout';
 import MainPage from './pages/MainPage';
 import SettingsPage from './pages/SettingsPage';
+import DashboardPage from './pages/DashboardPage';
 
 const theme = createTheme({
   palette: {
@@ -28,6 +29,7 @@ const App: React.FC = () => (
         <Routes>
           <Route path="/" element={<AppLayout />}>
             <Route index element={<MainPage />} />
+            <Route path="dashboard" element={<DashboardPage />} />
             <Route path="settings/categories" element={<SettingsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

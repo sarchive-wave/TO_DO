@@ -31,4 +31,17 @@ export const taskApi = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/tasks/${id}`);
   },
+
+  reorder: async (ids: number[]): Promise<void> => {
+    await apiClient.put('/tasks/reorder', { ids });
+  },
+
+  getSubCategories: async (): Promise<string[]> => {
+    const res = await apiClient.get<ApiResponse<string[]>>('/tasks/sub-categories');
+    return res.data.data;
+  },
+
+  deleteSubCategory: async (name: string): Promise<void> => {
+    await apiClient.delete(`/tasks/sub-categories/${encodeURIComponent(name)}`);
+  },
 };

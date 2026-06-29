@@ -20,6 +20,8 @@ class Task(Base):
     sub_category: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    sort_order: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    memo: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
