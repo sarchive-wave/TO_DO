@@ -17,25 +17,19 @@ Base.metadata.create_all(bind=engine)
 
 
 def _run_migrations():
-    """기존 DB에 없는 컬럼을 안전하게 추가하는 마이그레이션."""
+    """기존 DB에 없는 컬럼을 안전하게 추가하는 마이그레이션 (PostgreSQL 대응)."""
+    from sqlalchemy import inspect, text
     with engine.connect() as conn:
-        existing = [row[1] for row in conn.execute(
-            __import__("sqlalchemy").text("PRAGMA table_info(task)")
-        )]
+        inspector = inspect(engine)
+        existing = [col["name"] for col in inspector.get_columns("task")]
         if "sub_category" not in existing:
-            conn.execute(__import__("sqlalchemy").text(
-                "ALTER TABLE task ADD COLUMN sub_category VARCHAR(100)"
-            ))
+            conn.execute(text("ALTER TABLE task ADD COLUMN sub_category VARCHAR(100)"))
             conn.commit()
         if "sort_order" not in existing:
-            conn.execute(__import__("sqlalchemy").text(
-                "ALTER TABLE task ADD COLUMN sort_order INTEGER"
-            ))
+            conn.execute(text("ALTER TABLE task ADD COLUMN sort_order INTEGER"))
             conn.commit()
         if "memo" not in existing:
-            conn.execute(__import__("sqlalchemy").text(
-                "ALTER TABLE task ADD COLUMN memo VARCHAR(1000)"
-            ))
+            conn.execute(text("ALTER TABLE task ADD COLUMN memo VARCHAR(1000)"))
             conn.commit()
 
 

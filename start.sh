@@ -15,7 +15,7 @@ fi
 echo "백엔드 시작 중..."
 cd "$ROOT/backend"
 source venv/bin/activate
-nohup uvicorn app.main:app --port 8080 > "$LOGDIR/backend.log" 2>&1 &
+nohup uvicorn app.main:app --host 0.0.0.0 --port 8080 > "$LOGDIR/backend.log" 2>&1 &
 echo $! > "$LOGDIR/backend.pid"
 
 echo "프론트엔드 시작 중..."
