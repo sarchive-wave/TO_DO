@@ -62,6 +62,7 @@ const TaskFormModal: React.FC<Props> = ({ open, onClose, onSubmit, categories, s
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     if (!validate()) return;
     setSubmitting(true);
     try {
