@@ -20,10 +20,9 @@ if [ ! -d "$ROOT/backend/venv" ]; then
   echo "✓ 가상환경 생성 완료"
 fi
 
-# 패키지 설치
+# 패키지 설치 (psycopg2-binary 포함 requirements.txt 일괄 설치)
 source "$ROOT/backend/venv/bin/activate"
 pip install -r "$ROOT/backend/requirements.txt" -q
-pip install psycopg2-binary -q
 echo "✓ 패키지 설치 완료"
 
 # 프론트엔드 패키지 설치

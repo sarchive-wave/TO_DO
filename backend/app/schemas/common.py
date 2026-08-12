@@ -13,7 +13,3 @@ class ApiResponse(BaseModel, Generic[T]):
     @classmethod
     def ok(cls, data: T) -> "ApiResponse[T]":
         return cls(success=True, data=data)
-
-    @classmethod
-    def error(cls, message: str) -> "ApiResponse[None]":
-        return cls(success=False, data=None, message=message)

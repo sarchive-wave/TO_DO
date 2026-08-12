@@ -1,5 +1,3 @@
-import os
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,9 +6,6 @@ from app.config import settings
 from app.database import Base, engine, SessionLocal
 from app.routers import tasks, categories
 from app.seed import run_seed
-
-# SQLite DB 파일 저장 디렉토리 생성
-os.makedirs("./data", exist_ok=True)
 
 # 테이블 자동 생성
 Base.metadata.create_all(bind=engine)

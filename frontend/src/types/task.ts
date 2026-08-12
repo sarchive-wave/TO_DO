@@ -8,7 +8,6 @@ export interface Task {
   title: string;
   completed: boolean;
   memo: string | null;
-  sort_order: number | null;
   created_at: string;
   updated_at: string;
 }

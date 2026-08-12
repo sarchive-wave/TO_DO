@@ -15,7 +15,7 @@ import { taskApi } from '../api/taskApi';
 import { calcStats } from '../utils/statsUtils';
 import TaskTable from '../components/task/TaskTable';
 import TaskFormModal from '../components/task/TaskFormModal';
-import type { Task } from '../types/task';
+import type { Task, TaskCreateRequest } from '../types/task';
 
 const MainPage: React.FC = () => {
   const now = dayjs();
@@ -48,7 +48,7 @@ const MainPage: React.FC = () => {
   const openEdit = (task: Task) => { setEditingTask(task); setModalOpen(true); };
   const closeModal = () => { setModalOpen(false); setEditingTask(null); };
 
-  const handleSubmit = async (req: { task_date: string; category_id: number; title: string }) => {
+  const handleSubmit = async (req: TaskCreateRequest) => {
     if (editingTask) await updateTask(editingTask.id, req);
     else await createTask(req);
     taskApi.getSubCategories().then(setSubCategoryOptions).catch(() => {});

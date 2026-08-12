@@ -33,7 +33,6 @@ class TaskResponse(BaseModel):
     sub_category: Optional[str] = None
     title: str
     completed: bool
-    sort_order: Optional[int] = None
     memo: Optional[str] = None
     created_at: datetime
     updated_at: datetime

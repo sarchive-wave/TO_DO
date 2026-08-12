@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 
 from sqlalchemy.orm import Session, joinedload
@@ -18,13 +19,7 @@ class CategoryNotFoundError(Exception):
 def get_tasks_by_month(db: Session, year: int, month: int) -> list[TaskResponse]:
     start = date(year, month, 1)
     # 해당 월의 마지막 날 계산
-    if month == 12:
-        end = date(year + 1, 1, 1).replace(day=1)
-        import calendar
-        end = date(year, month, calendar.monthrange(year, month)[1])
-    else:
-        import calendar
-        end = date(year, month, calendar.monthrange(year, month)[1])
+    end = date(year, month, calendar.monthrange(year, month)[1])
 
     tasks = (
         db.query(Task)
@@ -49,9 +44,7 @@ def create_task(db: Session, request: TaskCreateRequest) -> TaskResponse:
     db.add(task)
     db.commit()
     db.refresh(task)
-    # category 관계 로드
-    db.refresh(task)
-    task.category  # 접근하여 lazy load 트리거
+    task.category  # 접근하여 category 관계 lazy load 트리거
     return _to_response(task)
 
 
