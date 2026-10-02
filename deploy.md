@@ -22,12 +22,12 @@ createdb todo_db
 ## 방법 A) 스크립트로 일괄 실행 (권장)
 
 ```bash
-./start.sh     # 백엔드(8080) + 프론트엔드(5173) 백그라운드 기동
+./start.sh     # 백엔드(8090) + 프론트엔드(5173) 백그라운드 기동
 ./stop.sh      # 두 서비스 종료
 ```
 
-- `start.sh`: 8080/5173 사용 중이면 중복 실행 방지, `nohup`으로 띄워 **터미널을 닫아도 유지**. PID는 `logs/*.pid`, 로그는 `logs/*.log`에 기록(`logs.md` 참조).
-- `stop.sh`: PID 파일로 종료 후, 남은 프로세스를 포트(8080/5173)로 정리.
+- `start.sh`: 8090/5173 사용 중이면 중복 실행 방지, `nohup`으로 띄워 **터미널을 닫아도 유지**. PID는 `logs/*.pid`, 로그는 `logs/*.log`에 기록(`logs.md` 참조).
+- `stop.sh`: PID 파일로 종료 후, 남은 프로세스를 포트(8090/5173)로 정리.
 
 ---
 
@@ -56,9 +56,9 @@ python3 -m venv venv
 source venv/bin/activate            # Windows: venv\Scripts\activate
 pip install -r requirements.txt     # psycopg2-binary(PostgreSQL 드라이버) 포함
 # backend/.env 준비 (DATABASE_URL, ALLOWED_ORIGINS)
-uvicorn app.main:app --host 0.0.0.0 --port 8080
+uvicorn app.main:app --host 0.0.0.0 --port 8090
 ```
-- API 문서: http://localhost:8080/docs
+- API 문서: http://localhost:8090/docs
 
 ### Frontend
 ```bash

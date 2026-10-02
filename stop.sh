@@ -18,7 +18,7 @@ for SERVICE in backend frontend; do
 done
 
 # 혹시 남은 프로세스 포트로 정리
-for PORT in 8080 5173; do
+for PORT in 8090 5173; do
   LEFTOVER=$(lsof -ti:$PORT)
   if [ -n "$LEFTOVER" ]; then
     kill $LEFTOVER 2>/dev/null

@@ -57,12 +57,12 @@ to_do/
 ## 빠른 실행
 
 ```bash
-./start.sh      # 백엔드(8080) + 프론트엔드(5173) 백그라운드 기동
+./start.sh      # 백엔드(8090) + 프론트엔드(5173) 백그라운드 기동
 ./stop.sh       # 종료
 ```
 
 - Frontend: http://localhost:5173
-- Backend API 문서: http://localhost:8080/docs
+- Backend API 문서: http://localhost:8090/docs
 - 상세 실행/배포는 `deploy.md`, 포트/구성은 `infra.md` 참조.
 
 ---

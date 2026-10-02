@@ -35,4 +35,4 @@ fi
 echo ""
 echo "설정 완료! 이제 ./start.sh 로 서비스를 시작하세요."
 echo "  Frontend : http://localhost:5173"
-echo "  Backend  : http://localhost:8080"
+echo "  Backend  : http://localhost:8090"

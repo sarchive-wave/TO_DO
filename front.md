@@ -5,7 +5,7 @@
 - React 18 + TypeScript + Vite
 - Material UI (MUI) v5 + `@mui/x-date-pickers` (Day.js 어댑터)
 - React Router v6
-- Axios (`/api` prefix, Vite proxy → 백엔드 8080)
+- Axios (`/api` prefix, Vite proxy → 백엔드 8090)
 - `@dnd-kit` (드래그 앤 드롭 정렬)
 - Recharts (대시보드 도넛 차트)
 
